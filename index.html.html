@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- HEAD SECTION: Page title, mobile settings, and all CSS styling -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FEARFREEFOOD – Allergy & Diet Filter</title>
+  <style>
+    /* GLOBAL RESET: Removes default browser spacing and sets the main font */
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+        /* BODY STYLE: Background colour/gradient and main text colour */
+    body { background: linear-gradient(135deg, #fff7ed, #f8fafc 45%, #ecfeff); color: #0f172a; line-height: 1.5; }
+        /* HEADER/HERO STYLE: Top banner with title and background image */
+    header { background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(30,64,175,0.92)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1400&q=80'); background-size: cover; background-position: center; color: #fff; padding: 2.2rem 1rem; text-align: center; }
+    header h1 { font-size: clamp(1.8rem, 5vw, 3rem); letter-spacing: .04em; margin-bottom: .35rem; }
+    header p { max-width: 680px; margin: 0 auto; opacity: .92; font-size: .98rem; }
+        /* MAIN CONTAINER: Keeps content centered and spaced */
+    main { max-width: 1180px; margin: 0 auto; padding: 1.2rem 1rem 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
+        /* PROGRESS BAR: Shows which step the customer is currently on */
+    .progress-wrap { background: #fff; border: 1px solid #e2e8f0; border-radius: 999px; padding: .35rem; box-shadow: 0 8px 25px rgba(15,23,42,.06); }
+    .progress-bar { height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden; }
+    .progress { height: 100%; width: 25%; background: linear-gradient(90deg, #2563eb, #16a34a); border-radius: 999px; transition: width .3s ease; }
+        /* PANEL CARDS: White rounded boxes used for each step */
+    .panel { background: rgba(255,255,255,.92); border-radius: 22px; padding: 1.2rem; box-shadow: 0 18px 40px rgba(15,23,42,.08); border: 1px solid #e2e8f0; backdrop-filter: blur(10px); }
+    .step-title { font-size: .75rem; text-transform: uppercase; letter-spacing: .15em; color: #2563eb; font-weight: 800; margin-bottom: .35rem; }
+    h2 { font-size: 1.25rem; margin-bottom: .35rem; }
+    h3 { font-size: 1rem; }
+    .subtext { font-size: .9rem; color: #64748b; margin-bottom: .8rem; }
+    .filter-group { margin-bottom: 1rem; }
+    .filter-group small { display: block; font-size: .78rem; color: #64748b; margin: .1rem 0 .45rem; }
+        /* ALLERGEN CHECKBOX GRID: Displays allergens in a responsive grid */
+    .checkbox-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .45rem .7rem; max-height: 280px; overflow-y: auto; padding-right: .2rem; }
+    .checkbox-list label { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: .55rem .65rem; display: flex; align-items: center; gap: .45rem; cursor: pointer; font-size: .86rem; }
+    input { accent-color: #2563eb; }
+        /* DIET BUTTONS: Small selectable buttons for dietary preference */
+    .chips { display: flex; flex-wrap: wrap; gap: .45rem; }
+    .chip { border-radius: 999px; border: 1px solid #cbd5e1; padding: .42rem .95rem; cursor: pointer; background: #fff; transition: .15s; font-size: .86rem; }
+    .chip.active { border-color: #2563eb; background: #dbeafe; color: #1d4ed8; font-weight: 700; }
+        /* BUTTON STYLES: Reusable styling for all buttons */
+    .btn { border-radius: 999px; border: none; padding: .65rem 1.1rem; font-size: .92rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .35rem; font-weight: 700; }
+    .btn-primary { background: #2563eb; color: white; box-shadow: 0 10px 22px rgba(37,99,235,.22); }
+    .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; box-shadow: none; }
+    .btn-ghost { background: #fff; border: 1px solid #cbd5e1; color: #334155; }
+    .btn-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .btn-row { display: flex; gap: .65rem; margin-top: .9rem; flex-wrap: wrap; }
+    .tag-row, .pill-row { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .25rem; }
+    .tag, .pill { border-radius: 999px; padding: .2rem .6rem; font-size: .75rem; background: #f1f5f9; color: #334155; }
+    .pill.diet { background: #dcfce7; color: #166534; }
+    .pill.allergen { background: #fee2e2; color: #b91c1c; }
+    .pill.safe { background: #e0f2fe; color: #0369a1; }
+    .pill.risk { background: #fef3c7; color: #92400e; }
+        /* MENU CARD GRID: Displays safe dishes as cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 1rem; margin-top: .55rem; }
+        /* DISH CARD: Individual menu item card */
+    .card { background: #fff; border-radius: 18px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 12px 30px rgba(15,23,42,.06); display: flex; flex-direction: column; }
+        /* FOOD IMAGE AREA: Holds each dish picture */
+    .food-img-wrap { width: 100%; height: 168px; background: linear-gradient(135deg, #e2e8f0, #f8fafc); position: relative; overflow: hidden; }
+    .food-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .25s ease; }
+    .card:hover .food-img { transform: scale(1.04); }
+        /* IMAGE FALLBACK: Shows a message if an image file is missing */
+    .image-fallback { display:none; height: 100%; align-items:center; justify-content:center; padding: 1rem; color: #64748b; text-align:center; font-weight:700; }
+    .card-body { padding: .85rem; display: flex; flex-direction: column; gap: .32rem; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+    .card-title { font-size: .98rem; font-weight: 800; }
+    .card-category { font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; margin-top: .15rem; }
+    .price { font-weight: 900; white-space: nowrap; }
+    .ingredients { font-size: .8rem; color: #64748b; }
+    .select-row { font-size: .84rem; margin-top: .35rem; color: #475569; }
+    .category-block { margin-top: .9rem; }
+    .category-block h3 { border-left: 4px solid #2563eb; padding-left: .55rem; }
+    .summary-list { font-size: .88rem; color: #334155; margin-top: .35rem; }
+    .summary-list li { margin-left: 1.2rem; list-style: disc; }
+    .summary-total { font-size: .95rem; font-weight: 900; margin-top: .35rem; }
+    .confirm-row { margin-top: .8rem; font-size: .86rem; display: flex; align-items: flex-start; gap: .45rem; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 14px; padding: .75rem; }
+    .status-msg { font-size: .86rem; margin-top: .65rem; font-weight: 700; }
+    .status-msg.success { color: #15803d; } .status-msg.error { color: #b91c1c; }
+    .hidden { display: none !important; }
+    .result-count { font-size: .88rem; color: #64748b; margin-bottom: .45rem; }
+        /* CUSTOMER SUPPORT SECTION: Cards explaining safety support */
+    .support-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .8rem; }
+    .support-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: .9rem; }
+    .support-card strong { display: block; margin-bottom: .2rem; }
+    .chat-box { margin-top: .8rem; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px; padding: .9rem; }
+    .chat-answer { margin-top: .5rem; color: #1e3a8a; font-size: .88rem; }
+        /* RESPONSIVE DESIGN: Adjusts layout for mobile screens */
+    @media (max-width: 640px) { main { padding: 1rem .7rem 2rem; } .panel { padding: 1rem; border-radius: 18px; } .food-img-wrap { height: 150px; } }
+  </style>
+</head>
+<body>
+<!-- PAGE BODY: Everything the user sees starts here -->
+<!-- HEADER SECTION: Branding and short explanation -->
+<header>
+  <h1>FEARFREEFOOD</h1>
+  <p>Scan the QR code, select your allergies, view safe dishes with clear food images, and confirm your order with staff support.</p>
+</header>
+
+<!-- MAIN CONTENT: Four-step allergy filter process plus support section -->
+<main>
+    <!-- PROGRESS BAR SECTION: Updates when moving between steps -->
+  <div class="progress-wrap"><div class="progress-bar"><div class="progress" id="progress"></div></div></div>
+
+    <!-- STEP 1: Customer selects allergens and dietary preference -->
+  <section class="panel" id="step1">
+    <div class="step-title">Step 1</div>
+    <h2>Select your allergies and dietary needs</h2>
+    <p class="subtext">Choose any food allergies and dietary requirements. The menu will only show dishes that match your selections.</p>
+    <div class="filter-group">
+      <h3>Allergens to avoid</h3>
+      <small>Tick all allergens that apply to you.</small>
+      <div class="checkbox-list" id="allergen-list"></div>
+    </div>
+    <div class="filter-group">
+      <h3>Dietary preference</h3>
+      <small>Choose one if needed, or leave as “Any”.</small>
+      <div class="chips" id="diet-chips">
+        <button class="chip active" data-diet="any">Any</button>
+        <button class="chip" data-diet="Vegan">Vegan</button>
+        <button class="chip" data-diet="Vegetarian">Vegetarian</button>
+        <button class="chip" data-diet="Gluten-Free">Gluten-Free</button>
+        <button class="chip" data-diet="Halal">Halal</button>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="step1-next">Continue</button>
+      <button class="btn btn-ghost" id="step1-clear">Clear selection</button>
+    </div>
+  </section>
+
+    <!-- STEP 2: Customer confirms allergy/diet information before filtering -->
+  <section class="panel hidden" id="step2">
+    <div class="step-title">Step 2</div>
+    <h2>Confirm your allergy information</h2>
+    <p class="subtext">Please check carefully before the menu is filtered.</p>
+    <h3>Your selected allergens</h3><div class="tag-row" id="summary-allergens"></div>
+    <div style="margin-top:.8rem;"><h3>Your dietary preference</h3><div class="tag-row" id="summary-diet"></div></div>
+    <div class="confirm-row"><input type="checkbox" id="confirm-allergy-checkbox"><label for="confirm-allergy-checkbox">I confirm that the allergy and dietary information I entered is correct.</label></div>
+    <div class="btn-row"><button class="btn btn-ghost" id="step2-back">Back</button><button class="btn btn-primary" id="step2-next" disabled>Show safe dishes</button></div>
+    <div class="status-msg" id="step2-msg"></div>
+  </section>
+
+    <!-- STEP 3: Filtered safe menu and dish selection -->
+  <section class="panel hidden" id="step3">
+    <div class="step-title">Step 3</div>
+    <h2>Safe dishes based on your selections</h2>
+    <p class="subtext">These dishes do not contain the allergens you selected. Always confirm with staff before ordering.</p>
+    <div class="result-count" id="result-count"></div>
+    <div id="category-sections">
+      <div class="category-block hidden" data-category="Starter"><h3>Starters</h3><div class="cards" id="cards-Starter"></div></div>
+      <div class="category-block hidden" data-category="Main"><h3>Mains</h3><div class="cards" id="cards-Main"></div></div>
+      <div class="category-block hidden" data-category="Side"><h3>Sides</h3><div class="cards" id="cards-Side"></div></div>
+      <div class="category-block hidden" data-category="Dessert"><h3>Desserts</h3><div class="cards" id="cards-Dessert"></div></div>
+      <div class="category-block hidden" data-category="Drink"><h3>Drinks</h3><div class="cards" id="cards-Drink"></div></div>
+    </div>
+    <div class="subtext hidden" id="no-results">No dishes match your current choices. Please go back or ask staff for help.</div>
+    <div style="margin-top:1rem; border-top:1px solid #e2e8f0; padding-top:.8rem;">
+      <h3>Your selected dishes</h3>
+      <ul class="summary-list" id="selected-dishes-list"></ul><div class="summary-total" id="selected-total"></div>
+      <div class="confirm-row"><input type="checkbox" id="confirm-order-checkbox"><label for="confirm-order-checkbox">I confirm that I checked these dishes against my allergies and I am ready to show this selection to the waiter.</label></div>
+      <div class="btn-row"><button class="btn btn-ghost" id="step3-back">Back</button><button class="btn btn-primary" id="go-to-final-btn">Continue</button></div>
+      <div class="status-msg" id="step3-msg"></div>
+    </div>
+  </section>
+
+    <!-- STEP 4: Final confirmed order shown to waiter/staff -->
+  <section class="panel hidden" id="step4">
+    <div class="step-title">Final Step</div>
+    <h2>Your confirmed order</h2>
+    <p class="subtext">Show this screen to your waiter so they can confirm and place your order.</p>
+    <ul class="summary-list" id="final-order-list"></ul><div class="summary-total" id="final-order-total"></div>
+    <div class="status-msg success">✔ Order created. A staff member will review it with you before sending it to the kitchen.</div>
+    <div class="btn-row"><button class="btn btn-ghost" id="back-to-menu-btn">Back to menu</button><button class="btn btn-danger" id="start-again-btn">Start again</button></div>
+  </section>
+
+    <!-- CUSTOMER SUPPORT SECTION: Extra safety guidance and simple support assistant -->
+  <section class="panel" id="support-section">
+    <div class="step-title">Customer Support</div>
+    <h2>Need help with allergies?</h2>
+    <p class="subtext">This section gives customers quick support before ordering.</p>
+    <div class="support-grid">
+      <div class="support-card"><strong>Call staff</strong><span>Ask a waiter to review ingredients or cross-contact risks.</span></div>
+      <div class="support-card"><strong>Allergy warning</strong><span>This tool supports safer ordering but does not replace staff confirmation.</span></div>
+      <div class="support-card"><strong>Kitchen check</strong><span>Staff should verify serious allergies before the order reaches the kitchen.</span></div>
+    </div>
+    <div class="chat-box">
+      <strong>Support Assistant</strong>
+      <p class="subtext" style="margin:.25rem 0 .5rem;">Choose a quick question:</p>
+      <div class="btn-row" style="margin-top:.4rem;">
+        <button class="btn btn-ghost chat-btn" data-answer="Please select every allergen that applies to you, then confirm with staff before ordering.">How do I use this?</button>
+        <button class="btn btn-ghost chat-btn" data-answer="Cross-contact means a dish may touch allergens through shared equipment, oil, utensils, or surfaces.">What is cross-contact?</button>
+        <button class="btn btn-ghost chat-btn" data-answer="If you have a severe allergy, speak to staff before ordering even if the app shows safe dishes.">I have a severe allergy</button>
+      </div>
+      <div class="chat-answer" id="chat-answer"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+// ===============================
+// JAVASCRIPT SECTION
+// Handles data, filtering, step navigation, dish cards, order summary, and support assistant
+// ===============================
+// ALLERGEN OPTIONS: UK 14 major allergens plus extra common allergens
+const ALLERGEN_OPTIONS = ["Celery","Cereals containing gluten","Crustaceans (e.g. prawns, crab, lobster)","Eggs","Fish","Lupin","Milk","Molluscs (e.g. mussels, oysters)","Mustard","Tree nuts (e.g. almond, hazelnut, walnut)","Peanuts","Sesame seeds","Soybeans (soya)","Sulphur dioxide / sulphites","Shellfish (general)","Wheat","Rye","Barley","Oats","Cashew nuts","Pistachio nuts","Macadamia nuts","Brazil nuts","Almonds","Walnuts"];
+
+// MENU DATASET: Each dish has name, category, ingredients, allergens, diet tags, price, and image
+const dishes = [
+ {id:1,name:"Paneer Butter Masala",category:"Main",ingredients:"Paneer, Tomato, Cream",allergens:["Milk"],dietaryTags:["Vegetarian"],crossContact:"Possible",price:9.99,image:"https://images.unsplash.com/photo-1631452180775-5a9c3558f2cb?auto=format&fit=crop&w=800&q=80"},
+ {id:2,name:"Chicken Tikka Masala",category:"Main",ingredients:"Chicken, Yogurt, Spices",allergens:["Milk"],dietaryTags:["Halal"],crossContact:"Possible",price:11.49,image:"https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&w=800&q=80"},
+ {id:3,name:"Vegan Chickpea Curry",category:"Main",ingredients:"Chickpeas, Onion, Tomato",allergens:[],dietaryTags:["Vegan","Gluten-Free"],crossContact:"No",price:8.99,image:"https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=800&q=80"},
+ {id:4,name:"Classic Margherita Pizza",category:"Main",ingredients:"Wheat Dough, Cheese, Sauce",allergens:["Cereals containing gluten","Milk"],dietaryTags:["Vegetarian"],crossContact:"Yes",price:10.49,image:"https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=800&q=80"},
+ {id:5,name:"Garlic Naan",category:"Side",ingredients:"Flour, Milk, Butter, Garlic",allergens:["Cereals containing gluten","Milk"],dietaryTags:["Vegetarian"],crossContact:"Yes",price:3.50,image:"images/garlic-naan.jpg"},
+ {id:6,name:"Gluten-Free Roti",category:"Side",ingredients:"Millet Flour, Water, Oil",allergens:[],dietaryTags:["Vegan","Gluten-Free"],crossContact:"No",price:3.99,image:"images/gluten-free-roti.jpg"},
+ {id:7,name:"Chicken Biryani",category:"Main",ingredients:"Chicken, Rice, Onion, Ghee",allergens:["Milk"],dietaryTags:["Halal"],crossContact:"Possible",price:10.99,image:"images/chicken-biryani.jpg"},
+ {id:8,name:"Veg Biryani",category:"Main",ingredients:"Rice, Vegetables, Spices",allergens:[],dietaryTags:["Vegetarian"],crossContact:"No",price:9.49,image:"images/veg-biryani.jpg"},
+ {id:9,name:"Thai Green Curry",category:"Main",ingredients:"Coconut Milk, Vegetables, Soy Sauce",allergens:["Soybeans (soya)"],dietaryTags:["Vegan"],crossContact:"Possible",price:11.99,image:"https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?auto=format&fit=crop&w=800&q=80"},
+ {id:10,name:"Seafood Fried Rice",category:"Main",ingredients:"Shrimp, Egg, Soy Sauce",allergens:["Crustaceans (e.g. prawns, crab, lobster)","Eggs","Soybeans (soya)"],dietaryTags:[],crossContact:"Possible",price:12.99,image:"https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80"},
+ {id:11,name:"Peanut Pad Thai",category:"Main",ingredients:"Rice Noodles, Peanuts, Tofu",allergens:["Peanuts"],dietaryTags:["Vegetarian"],crossContact:"Yes",price:11.49,image:"https://images.unsplash.com/photo-1559314809-0f31657b3e0f?auto=format&fit=crop&w=800&q=80"},
+ {id:12,name:"Grilled Salmon Steak",category:"Main",ingredients:"Salmon, Herbs",allergens:["Fish"],dietaryTags:[],crossContact:"Possible",price:14.99,image:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=800&q=80"},
+ {id:13,name:"Caesar Salad",category:"Starter",ingredients:"Lettuce, Croutons, Cheese",allergens:["Cereals containing gluten","Milk","Eggs"],dietaryTags:["Vegetarian"],crossContact:"Yes",price:7.99,image:"https://images.unsplash.com/photo-1550304943-4f24f54ddde9?auto=format&fit=crop&w=800&q=80"},
+ {id:14,name:"Tomato Soup",category:"Starter",ingredients:"Tomato, Cream, Herbs",allergens:["Milk"],dietaryTags:["Vegetarian"],crossContact:"Possible",price:5.99,image:"https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=800&q=80"},
+ {id:15,name:"Vegan Lentil Soup",category:"Starter",ingredients:"Lentils, Vegetables, Spices",allergens:[],dietaryTags:["Vegan","Gluten-Free"],crossContact:"No",price:5.49,image:"https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=800&q=80"},
+ {id:16,name:"Chocolate Brownie",category:"Dessert",ingredients:"Cocoa, Butter, Egg, Flour",allergens:["Cereals containing gluten","Milk","Eggs"],dietaryTags:["Vegetarian"],crossContact:"Yes",price:4.99,image:"https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=800&q=80"},
+ {id:17,name:"Fruit Sorbet",category:"Dessert",ingredients:"Fruit, Sugar",allergens:[],dietaryTags:["Vegan","Gluten-Free"],crossContact:"No",price:3.99,image:"https://images.unsplash.com/photo-1505252585461-04db1eb84625?auto=format&fit=crop&w=800&q=80"},
+ {id:18,name:"Cheesecake Slice",category:"Dessert",ingredients:"Cheese, Cream, Wheat Base",allergens:["Milk","Cereals containing gluten","Eggs"],dietaryTags:["Vegetarian"],crossContact:"Yes",price:5.49,image:"https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=800&q=80"},
+ {id:19,name:"Mango Lassi",category:"Drink",ingredients:"Yogurt, Mango, Milk",allergens:["Milk"],dietaryTags:["Vegetarian"],crossContact:"No",price:3.99,image:"https://images.unsplash.com/photo-1626201850128-7eda9b21e8e1?auto=format&fit=crop&w=800&q=80"},
+ {id:20,name:"Fresh Lime Soda",category:"Drink",ingredients:"Soda, Lime, Sugar",allergens:[],dietaryTags:["Vegan","Gluten-Free"],crossContact:"No",price:2.99,image:"https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=800&q=80"}
+];
+
+// STATE VARIABLES: Store the customer selections while using the app
+let selectedAllergens = new Set(); let selectedDiet = "any"; let selectedDishIds = new Set();
+// SHORTCUT FUNCTION: Makes document.getElementById easier to write
+const $ = id => document.getElementById(id);
+// DOM REFERENCES: Connect JavaScript to important HTML sections and elements
+const step1Section = $("step1"), step2Section = $("step2"), step3Section = $("step3"), step4Section = $("step4");
+const progress = $("progress"), allergenListEl = $("allergen-list"), dietChips = $("diet-chips");
+const summaryAllergensEl = $("summary-allergens"), summaryDietEl = $("summary-diet"), confirmAllergyCheckbox = $("confirm-allergy-checkbox"), step2NextBtn = $("step2-next"), step2MsgEl = $("step2-msg");
+const resultCountEl = $("result-count"), noResultsEl = $("no-results"), selectedDishesListEl = $("selected-dishes-list"), selectedTotalEl = $("selected-total"), confirmOrderCheckbox = $("confirm-order-checkbox"), step3MsgEl = $("step3-msg"), finalOrderListEl = $("final-order-list"), finalOrderTotalEl = $("final-order-total");
+const categoryBlocks = {Starter:document.querySelector('[data-category="Starter"]'),Main:document.querySelector('[data-category="Main"]'),Side:document.querySelector('[data-category="Side"]'),Dessert:document.querySelector('[data-category="Dessert"]'),Drink:document.querySelector('[data-category="Drink"]')};
+const cardsContainers = {Starter:$("cards-Starter"),Main:$("cards-Main"),Side:$("cards-Side"),Dessert:$("cards-Dessert"),Drink:$("cards-Drink")};
+
+// STEP NAVIGATION: Shows one step at a time and updates the progress bar
+function showStep(n){
+  [step1Section,step2Section,step3Section,step4Section].forEach(s=>s.classList.add("hidden"));
+  [step1Section,step2Section,step3Section,step4Section][n-1].classList.remove("hidden");
+  progress.style.width = (n*25) + "%";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+// RENDER ALLERGEN CHECKBOXES: Creates checkboxes from ALLERGEN_OPTIONS automatically
+function renderAllergenOptions(){
+  allergenListEl.innerHTML="";
+  ALLERGEN_OPTIONS.forEach((name,i)=>{
+    const label=document.createElement("label");
+    label.innerHTML=`<input type="checkbox" id="allergen-${i}" value="${name}"><span>${name}</span>`;
+    label.querySelector("input").addEventListener("change",e=> e.target.checked ? selectedAllergens.add(name) : selectedAllergens.delete(name));
+    allergenListEl.appendChild(label);
+  });
+}
+
+// DIET CHIP SELECTION: Updates the selected diet when a diet button is clicked
+dietChips.addEventListener("click", e => {
+  if(e.target.classList.contains("chip")){
+    selectedDiet=e.target.dataset.diet;
+    dietChips.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+    e.target.classList.add("active");
+  }
+});
+
+// STEP 1 CONTINUE BUTTON: Moves from allergen selection to confirmation
+$("step1-next").onclick = () => {
+  updateStep2Summary();
+  confirmAllergyCheckbox.checked=false;
+  step2NextBtn.disabled=true;
+  step2MsgEl.textContent="";
+  showStep(2);
+};
+
+// CLEAR BUTTON: Resets allergens and diet back to default
+$("step1-clear").onclick = () => {
+  selectedAllergens.clear();
+  selectedDiet="any";
+  allergenListEl.querySelectorAll("input").forEach(cb=>cb.checked=false);
+  dietChips.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+  dietChips.querySelector('[data-diet="any"]').classList.add("active");
+};
+
+// STEP 2 SUMMARY: Displays selected allergens and diet for checking
+function updateStep2Summary(){
+  summaryAllergensEl.innerHTML="";
+  summaryDietEl.innerHTML="";
+  if(selectedAllergens.size===0){
+    summaryAllergensEl.innerHTML='<span class="tag">No specific allergens selected</span>';
+  } else {
+    selectedAllergens.forEach(a=>{
+      const span=document.createElement("span");
+      span.className="tag";
+      span.textContent=a;
+      summaryAllergensEl.appendChild(span);
+    });
+  }
+  summaryDietEl.innerHTML=`<span class="tag">${selectedDiet === "any" ? "Any diet" : selectedDiet}</span>`;
+}
+
+// CONFIRMATION CHECKBOX: Enables the next button only when customer confirms details
+confirmAllergyCheckbox.onchange = e => step2NextBtn.disabled = !e.target.checked;
+// STEP 2 BACK BUTTON: Returns to Step 1
+$("step2-back").onclick = () => showStep(1);
+// STEP 2 NEXT BUTTON: Filters the menu and moves to Step 3
+$("step2-next").onclick = () => {
+  renderSafeMenu();
+  confirmOrderCheckbox.checked=false;
+  step3MsgEl.textContent="";
+  showStep(3);
+};
+
+// FILTERING LOGIC: Removes dishes containing selected allergens and applies diet filter
+function getSafeDishes(){
+  return dishes.filter(d => {
+    for (let a of selectedAllergens){
+      if(d.allergens.includes(a)) return false;
+    }
+    return selectedDiet === "any" || d.dietaryTags.includes(selectedDiet);
+  });
+}
+
+// IMAGE ERROR HANDLING: Shows fallback text if a dish image cannot be loaded
+function imageError(img, dishName){
+  img.style.display='none';
+  const fallback=img.parentElement.querySelector('.image-fallback');
+  fallback.style.display='flex';
+  fallback.textContent = dishName + ' image unavailable';
+}
+
+// RENDER SAFE MENU: Builds dish cards for only the safe/matching dishes
+function renderSafeMenu(){
+  const safeDishes = getSafeDishes();
+  selectedDishIds.clear();
+  updateSelectedDishesSummary();
+  Object.values(cardsContainers).forEach(c=>c.innerHTML="");
+  Object.values(categoryBlocks).forEach(b=>b.classList.add("hidden"));
+
+  if(safeDishes.length===0){
+    resultCountEl.textContent="0 safe dishes found.";
+    noResultsEl.classList.remove("hidden");
+    return;
+  }
+
+  noResultsEl.classList.add("hidden");
+  resultCountEl.textContent=`${safeDishes.length} safe dish(es) found.`;
+
+  ["Starter","Main","Side","Dessert","Drink"].forEach(cat => {
+    const list=safeDishes.filter(d=>d.category===cat);
+    if(!list.length) return;
+    categoryBlocks[cat].classList.remove("hidden");
+
+    list.forEach(dish=>{
+      const card=document.createElement("div");
+      card.className="card";
+
+      const dietPills=dish.dietaryTags.map(t=>`<span class="pill diet">${t}</span>`).join("");
+      const allergenPills=dish.allergens.length ? dish.allergens.map(a=>`<span class="pill allergen">${a}</span>`).join("") : `<span class="pill safe">No listed allergens</span>`;
+      const riskPill=(dish.crossContact==="Yes" || dish.crossContact==="Possible") ? `<span class="pill risk">Cross-contact: ${dish.crossContact}</span>` : "";
+      const safeDishName = dish.name.replace(/'/g,"\\'");
+
+      card.innerHTML=`<div class="food-img-wrap"><img src="${dish.image}" class="food-img" alt="Photo of ${dish.name}" loading="lazy" onerror="imageError(this, '${safeDishName}')"><div class="image-fallback"></div></div><div class="card-body"><div class="card-header"><div><div class="card-title">${dish.name}</div><div class="card-category">${dish.category}</div></div><div class="price">£${dish.price.toFixed(2)}</div></div><div class="ingredients">Ingredients: ${dish.ingredients}</div><div class="pill-row">${dietPills}${allergenPills}${riskPill}</div><div class="select-row"><label><input type="checkbox" data-dish-id="${dish.id}"> Add to my selection</label></div></div>`;
+
+      card.querySelector("input").onchange = e => {
+        const id=Number(e.target.dataset.dishId);
+        e.target.checked ? selectedDishIds.add(id) : selectedDishIds.delete(id);
+        updateSelectedDishesSummary();
+      };
+
+      cardsContainers[cat].appendChild(card);
+    });
+  });
+}
+
+// SELECTED DISH SUMMARY: Shows chosen dishes and calculates estimated total price
+function updateSelectedDishesSummary(){
+  const chosen=dishes.filter(d=>selectedDishIds.has(d.id));
+  selectedDishesListEl.innerHTML="";
+  selectedTotalEl.textContent="";
+  if(!chosen.length) return;
+
+  let total=0;
+  chosen.forEach(d=>{
+    total+=d.price;
+    const li=document.createElement("li");
+    li.textContent=`${d.name} – £${d.price.toFixed(2)}`;
+    selectedDishesListEl.appendChild(li);
+  });
+  selectedTotalEl.textContent=`Estimated total: £${total.toFixed(2)}`;
+}
+
+// STEP 3 BACK BUTTON: Returns to confirmation screen
+$("step3-back").onclick = () => showStep(2);
+
+// FINAL ORDER BUTTON: Validates dish selection and confirmation before final screen
+$("go-to-final-btn").onclick = () => {
+  step3MsgEl.classList.remove("success","error");
+
+  if(selectedDishIds.size===0){
+    step3MsgEl.textContent="Please select at least one dish before continuing.";
+    step3MsgEl.classList.add("error");
+    return;
+  }
+
+  if(!confirmOrderCheckbox.checked){
+    step3MsgEl.textContent="Please tick the confirmation box before continuing.";
+    step3MsgEl.classList.add("error");
+    return;
+  }
+
+  const chosen=dishes.filter(d=>selectedDishIds.has(d.id));
+  finalOrderListEl.innerHTML="";
+  let total=0;
+
+  chosen.forEach(d=>{
+    total+=d.price;
+    const li=document.createElement("li");
+    li.textContent=`${d.name} – £${d.price.toFixed(2)}`;
+    finalOrderListEl.appendChild(li);
+  });
+
+  finalOrderTotalEl.textContent=`Total: £${total.toFixed(2)}`;
+  showStep(4);
+};
+
+// BACK TO MENU BUTTON: Returns from final order screen to menu
+$("back-to-menu-btn").onclick = () => showStep(3);
+// START AGAIN BUTTON: Refreshes the page and clears all selections
+$("start-again-btn").onclick = () => location.reload();
+// SUPPORT ASSISTANT BUTTONS: Shows quick answers for common allergy questions
+document.querySelectorAll(".chat-btn").forEach(btn => btn.onclick = () => $("chat-answer").textContent = btn.dataset.answer);
+// INITIALISATION: Builds the allergen checklist when the page loads
+renderAllergenOptions();
+</script>
+</body>
+</html>
